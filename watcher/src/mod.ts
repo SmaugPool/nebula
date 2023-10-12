@@ -1,3 +1,5 @@
+/// <reference lib="deno.unstable"
+
 import {
   Block,
   createChainSynchronizationClient,
@@ -7,13 +9,13 @@ import {
   Tip,
 } from "../../deps.ts";
 import { db } from "./db.ts";
-import { eventsHandler, flags, onChange } from "./flags.ts";
+import { eventsHandler, flags, onChange, onRollback } from "./flags.ts";
 import { isEmptyString, pipe, pointToPointDB } from "./utils.ts";
 import { watchBlock } from "./watcher.ts";
 import { PointDB } from "./types.ts";
 
 const CHECKPOINT_INTERVAL = flags.sync ? 10000 : 200;
-const CONFIRMATIONS_NEEDED = 5;
+const CONFIRMATIONS_NEEDED = 0;
 
 let hasExited = false;
 Deno.addSignalListener("SIGINT", () => {
@@ -61,6 +63,7 @@ function rollBackward({ point }: {
   db.rollbackDatabase(pointToPointDB(point));
   db.updateCheckpoint("Rollback", pointToPointDB(point));
   if (db.hasChange()) onChange();
+  if (db.hasChange()) onRollback(point);
   return new Promise((res) => res(nextBlock()));
 }
 

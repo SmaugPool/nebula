@@ -47,20 +47,12 @@ export function sortAsc(a: UTxO, b: UTxO): number {
 export function toOwner(
   { address, data }: { address?: Address; data?: D.Address },
 ): string {
-  const { paymentCredential } = getAddressDetails(
+  return getAddressDetails(
     address || toAddress(
       data!,
       lucid,
     ),
-  );
-  if (paymentCredential?.type === "Key") {
-    return C.Ed25519KeyHash.from_hex(paymentCredential.hash).to_bech32(
-      "addr_vkh",
-    );
-  } else if (paymentCredential?.type === "Script") {
-    return C.ScriptHash.from_hex(paymentCredential.hash).to_bech32("script");
-  }
-  return "";
+  ).address.bech32;
 }
 
 export function fromAddress(address: Address): D.Address {

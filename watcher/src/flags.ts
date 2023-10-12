@@ -2,6 +2,7 @@ import { Config, MarketplaceEvent } from "./types.ts";
 import { parse } from "https://deno.land/std@0.119.0/flags/mod.ts";
 import packageInfo from "../../package.json" assert { type: "json" };
 import { resolvePath } from "./utils.ts";
+import { Point } from "../../deps.ts";
 
 export const flags = parse(Deno.args, {
   string: ["ogmios-url", "database", "config"],
@@ -46,10 +47,11 @@ if (!flags.database) {
   throw "--database flag required.";
 }
 
-export const { config, eventsHandler, onChange }: {
+export const { config, eventsHandler, onChange, onRollback }: {
   config: Config;
   eventsHandler: (events: MarketplaceEvent[]) => unknown;
   onChange: () => unknown;
+  onRollback: (point: Point) => unknown;
 } = await import(
   resolvePath(flags.config || new URL("../config.ts", import.meta.url)).href
 );
